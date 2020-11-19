@@ -21,7 +21,7 @@ for i = 1: Imax
     if(x(i)<2)
         u0(i,1) = RhoStart;
     elseif(x(i)<30)
-        u0(i,1)= (1 + 0.01*sin(0.1*pi*(x(i) - 2)))* RhoStart;
+        u0(i,1)= (1 + 0.01*sin((2/29)*pi*(x(i) - 2)))* RhoStart;
     else
         u0(i,1)= RhoStart;
     end
