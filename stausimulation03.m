@@ -2,7 +2,7 @@ clear all;
 close all;
 
 % löse die Transportgleichung: u_t + u_u_x = 0
-L = 500;            % Streckenlänge (Meter)
+L = 800;            % Streckenlänge (Meter)
 T = 60;             % Time of interest (Sekunden) 
 CFL = 0.9;
 Imax = 500;         % Anzahl Stützstellen
@@ -16,12 +16,17 @@ deltaX = L/(Imax - 1);
 u0 = zeros(Imax, 1);
 
 % set initial conditions
-% Gauss pulse centered at 4
+% Sinus so eingestellt dass er eine Schwingung im bereich (120, 240) macht
+% (Freuquenz)
+AnfangDichtestoerung = 120;
+EndeDichtestoerung = 240;
+freq = 2*pi/(EndeDichtestoerung-AnfangDichtestoerung);
+
 for i = 1: Imax
-    if(x(i)<120)
+    if(x(i)<AnfangDichtestoerung)
         u0(i,1) = RhoStart;
-    elseif(x(i)<150)
-        u0(i,1)= (1 + 0.15*sin(0.06*pi*(x(i) - 120)))* RhoStart;
+    elseif(x(i)<EndeDichtestoerung)
+        u0(i,1)= (1 + 0.01*sin(freq*(x(i) - 120)))* RhoStart;
     else
         u0(i,1)= RhoStart;
     end
