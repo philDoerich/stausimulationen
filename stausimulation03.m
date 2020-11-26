@@ -39,7 +39,7 @@ end
 %end
 
 %c = -(((-2)*maxU0)*VMax/RhoMax + VMax);
-a_Rho = (((-2)*RhoMax)*VMax/RhoMax + VMax);
+a_Rho = ((-2)*RhoMax)*VMax/RhoMax + VMax;
 deltaT = CFL*deltaX/abs(a_Rho);
 Nmax = ceil(T/deltaT) + 1;
 
@@ -53,9 +53,8 @@ for i = 1: Imax
    u(i,1) = u0(i,1);
    v(i, 1) = -(VMax/RhoMax)*u0(i, 1) + VMax;
    wg(i, 1) = (((-2)*u0(i, 1)*VMax)/RhoMax + VMax);
+   pos(i, 1) = i*deltaX;
 end
-
-
 
 for n = 2: Nmax
     %backward differences
@@ -75,7 +74,7 @@ for n = 2: Nmax
         else
             wg(1, n) = 0;
     end
-    pos(1, n) = (a_Rho/2)*(deltaT^2) + v(1, n)*deltaT + pos(1, n-1);
+    %pos(1, n) =  v(1, n)*deltaT + pos(1, n-1);
     
     
     a_Rho = (((-2)*u(Imax - 1, n - 1)*VMax)/RhoMax + VMax);   
@@ -93,7 +92,7 @@ for n = 2: Nmax
         else
             wg(Imax, n) = 0;
     end
-    pos(Imax, n) = (a_Rho/2)*(deltaT^2) + v(Imax, n)*deltaT + pos(Imax, n-1);
+    %pos(Imax, n) =  v(Imax, n)*deltaT + pos(Imax, n-1);
     
     for i = 2: Imax-1
         a_Rho = (((-2)*u(i - 1, n - 1)*VMax)/RhoMax + VMax);
@@ -105,7 +104,7 @@ for n = 2: Nmax
         u(i, n) = u(i, n - 1) - deltaT/deltaX*a_RhoPlus*(u(i, n - 1) - u(i - 1, n - 1)) - deltaT/deltaX*a_RhoMinus*(u(i + 1, n - 1) - u(i, n - 1));
         u(i, n) = min(u(i, n), RhoMax);
         v(i, n) = -(VMax/RhoMax)*u(i, n) + VMax;
-        pos(i, n) = (a_Rho/2)*(deltaT^2) + v(i, n)*deltaT + pos(i-1, n-1);
+        %pos(i, n) = (v(i, n)*deltaT + pos(i-1, n-1));
         if (a_RhoPlus ~= 0)
             wg(i, n) = a_RhoPlus;
         elseif (a_RhoMinus ~= 0)
@@ -115,6 +114,12 @@ for n = 2: Nmax
         end
         
     end
+end
+
+for i = 1 : Imax
+    for n = 2 : Nmax
+        pos(i, n) = mod((v(i, n)*deltaT + pos(i, n-1)), 230);
+    end 
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -141,7 +146,7 @@ figure('Name', 'Numerical vs. exact solution','NumberTitle','off')
 hold on;
 %Achsenbeschriftungen
 xlabel('Streckenlänge_{m}','FontAngle','italic');
-ylabel('Vekehrsdichte_{\frac{A}{m}}','FontAngle','italic');
+ylabel('Vekehrsdichte_{A/m}','FontAngle','italic');
 
 %plot(x, u);
 plot(x, u(1:Imax,1), x, u(1:Imax,  ceil(Nmax/6)),'-.r', x, u(1:Imax, 2* ceil(Nmax/6)), '--m', x, u(1:Imax, 3* ceil(Nmax/6)), ':b', x, u(1:Imax, 4* ceil(Nmax/6)), '-.g', x, u(1:Imax, 5* ceil(Nmax/6)), ':r', x, u(1:Imax, Nmax), '-.m');
@@ -223,4 +228,4 @@ hold on;
 xlabel('Position_{m}','FontAngle','italic');
 ylabel('Zeit_{sek}','FontAngle','italic');
 
-plot(pos(1:Imax, 1:25:Nmax));
+plot(pos(1:23:Imax, 1:Nmax), t);
